@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script type="text/javascript">
+	var cnt = "{{cnt}}";
+	if(cnt == 1){
+		alert("수정 완료");
+		location.href = "emp_list";
+	}else{
+		alert("수정 실패");
+		history.back();
+		// history.go() 앞으로
+		// history.go(1) 앞으로 한칸 
+		// history.go(-1) 뒤로 한칸 
+	}
+</script>
+</head>
+<body>
+
+</body>
+</html>

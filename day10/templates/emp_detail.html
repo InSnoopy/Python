@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script type="text/javascript">
+	function fn_mod(){
+		var e_id = "{{emp.E_ID}}";
+		location.href = "emp_edit?emp_edit="+e_id;
+	}
+	function fn_delete(){
+		let returnValue=confirm("정말 삭제하시겠습니까?");
+		if(returnValue==true){
+			document.frm.submit();			
+		}else{
+			return;
+		}
+	}
+</script>
+</head>
+<body>
+EMP_DETAIL
+<form action="emp_delete" name="frm" method="post">
+	<input type="hidden" name="e_id" value="{{emp.E_ID}}">
+</form>
+
+<table border="1px">
+	<tr>
+	   <td>사번</td>
+	   <TD>{{emp.E_ID}}</TD>
+	</tr>
+	<tr>
+	   <td>이름</td>
+	   <TD>{{emp.E_NAME}}</TD>
+	</tr>
+	<tr>
+	   <td>성별</td>
+	   <TD>{{emp.SEX}}</TD>
+	</tr>
+	<tr>
+	   <td>주소</td>
+	   <TD>{{emp.ADDR}}</TD>
+	</tr>
+	<tr>
+		<td colspan="2">			
+			<input type="button" value="수정" onclick="fn_mod()"/>
+			<input type="button" value="삭제" onclick="fn_delete()"/>
+		</td>
+	</tr>
+</table>
+
+</body>
+</html>

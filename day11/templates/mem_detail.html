@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script type="text/javascript">
+	function fn_mod(){
+		var m_id = "{{emp.m_id}}";
+		location.href = "mem_edit?m_id="+m_id;
+	}
+	function fn_delete(){
+		let returnValue=confirm("정말 삭제하시겠습니까?");
+		if(returnValue==true){
+			document.frm.submit();			
+		}else{
+			return;
+		}
+	}
+</script>
+</head>
+<body>
+MEM_DETAIL
+<form action="mem_delete" name="frm" method="post">
+	<input type="hidden" name="m_id" value="{{emp.m_id}}">
+</form>
+
+<table border="1px">
+	<tr>
+	   <td>ID</td>
+	   <TD>{{emp.m_id}}</TD>
+	</tr>
+	<tr>
+	   <td>이름</td>
+	   <TD>{{emp.m_nm}}</TD>
+	</tr>
+	<tr>
+	   <td>전화번호</td>
+	   <TD>{{emp.tel}}</TD>
+	</tr>
+	<tr>
+	   <td>생년월일</td>
+	   <TD>{{emp.ymd}}</TD>
+	</tr>
+	<tr>
+		<td colspan="2">			
+			<input type="button" value="수정" onclick="fn_mod()"/>
+			<input type="button" value="삭제" onclick="fn_delete()"/>
+		</td>
+	</tr>
+</table>
+
+</body>
+</html>
