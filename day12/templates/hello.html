@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+<script type="text/javascript">
+let v_tbody = document.getElementById("my_tbody");
+	function fn_list(){
+		
+        var postdata = {
+				'id':'1'
+            };
+        
+
+        $.ajax({
+            type: 'POST',
+            url: 'ajax',
+            data: JSON.stringify(postdata),
+            dataType : 'JSON',
+            contentType: "application/json",
+            success: function(data){
+            	
+            	let name = "";
+            	for(var i=0; i<data.list.length; i++){
+            		name += `
+            			<tr>
+		            		<td><a href="javascript:fn_one('${data.list[i].E_ID}')">${data.list[i].E_ID}</a></td>
+		            		<td>${data.list[i].E_NAME}</td>
+		            		<td>${data.list[i].SEX}</td>
+		            		<td>${data.list[i].ADDR}</td>
+		    			</tr>
+		    			`;
+            	}
+            	
+            	document.getElementById("my_tbody").innerHTML = name;
+            },
+            error: function(request, status, error){
+				console.log(error);
+            }
+        });
+		
+	}
+	
+	function fn_one(e_id){
+        var param = {
+				'e_id':e_id
+            };
+
+        $.ajax({
+            type: 'POST',
+            url: 'ajax_one',
+            data: JSON.stringify(param),
+            dataType : 'JSON',
+            contentType: "application/json",
+            success: function(data){
+
+				let v_eId   = document.getElementById("e_id");
+            	let v_eName = document.getElementById("e_name");
+            	let v_sex   = document.getElementById("sex");
+            	let v_addr  = document.getElementById("addr");
+            	
+            	v_eId.value   = data.list.E_ID;
+            	v_eName.value = data.list.E_NAME;
+            	v_sex.value   = data.list.SEX;
+            	v_addr.value  = data.list.ADDR;
+
+            },
+            error: function(request, status, error){
+				console.log(error);
+            }
+        });
+	}
+	
+	function fn_add(){
+        var param = {
+				'e_id': document.getElementById("e_id").value,
+				'e_name': document.getElementById("e_name").value,
+				'sex': document.getElementById("sex").value,
+				'addr': document.getElementById("addr").value
+            };
+        
+        $.ajax({
+            type: 'POST',
+            url: 'ajax_add',
+            data: JSON.stringify(param),
+            dataType : 'JSON',
+            contentType: "application/json",
+            success: function(data){
+            	let cnt = data.cnt
+            	console.log(cnt);
+            	
+            	if(cnt > 0){
+        			alert("추가 성공")
+        			fn_list()
+        			document.getElementById("e_id").value = "";
+        			document.getElementById("e_name").value = "";
+        			document.getElementById("sex").value = "";
+        			document.getElementById("addr").value = "";
+            	}else{
+            		alert("추가 실패")
+            	}
+            },
+            error: function(request, status, error){
+				console.log(error);
+            }
+        });
+	}
+	
+
+	function fn_edit(){
+        var param = {
+				'e_id': document.getElementById("e_id").value,
+				'e_name': document.getElementById("e_name").value,
+				'sex': document.getElementById("sex").value,
+				'addr': document.getElementById("addr").value
+            };
+        
+        $.ajax({
+            type: 'POST',
+            url: 'ajax_edit',
+            data: JSON.stringify(param),
+            dataType : 'JSON',
+            contentType: "application/json",
+            success: function(data){
+            	let cnt = data.cnt
+            	console.log(cnt);
+            	if(cnt > 0){
+        			alert("수정 성공")
+        			fn_list()
+        			document.getElementById("e_id").value = "";
+        			document.getElementById("e_name").value = "";
+        			document.getElementById("sex").value = "";
+        			document.getElementById("addr").value = "";
+            	}else{
+            		alert("수정 실패")
+            	}
+            },
+            error: function(request, status, error){
+				console.log(error);
+            }
+        });
+	}
+	
+	function fn_del1(){
+		let result = confirm("정말 삭제하시겠습니까?");
+		if (result==true){
+			fn_del2();
+		}else{
+			return;
+		}
+	}
+	
+	function fn_del2(){
+        var param = {
+				'e_id': document.getElementById("e_id").value,
+            };
+        
+        $.ajax({
+            type: 'POST',
+            url: 'ajax_del',
+            data: JSON.stringify(param),
+            dataType : 'JSON',
+            contentType: "application/json",
+            success: function(data){
+            	let cnt = data.cnt
+            	console.log(cnt);
+            	if(cnt > 0){
+        			alert("삭제 성공")
+        			fn_list()
+        			document.getElementById("e_id").value = "";
+        			document.getElementById("e_name").value = "";
+        			document.getElementById("sex").value = "";
+        			document.getElementById("addr").value = "";
+            	}else{
+            		alert("삭제 실패")
+            	}
+            },
+            error: function(request, status, error){
+				console.log(error);
+            }
+        });
+	}
+	
+</script>
+</head>
+<body onload="fn_list()">
+<table border="1px">
+	<thead>
+		<tr>
+			<td>사번</td>
+			<td>이름</td>
+			<td>성별</td>
+			<td>주소</td>
+		</tr>
+	</thead>
+	<tbody id="my_tbody">
+	
+	</tbody>
+</table>
+
+
+<table border="1px">
+	<tr>
+		<td>사번</td>
+		<td>
+			<input type="text" id="e_id"/>
+		</td>
+	</tr>
+	<tr>
+		<td>이름</td>
+		<td>
+			<input type="text" id="e_name"/>
+		</td>
+	</tr>
+	<tr>
+		<td>성별</td>
+		<td>
+			<input type="text" id="sex"/>
+		</td>
+	</tr>
+	<tr>
+		<td>주소</td>
+		<td>
+			<input type="text" id="addr"/>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2">
+			<input type="button" value="추가" onclick="fn_add()"/>
+			<input type="button" value="수정" onclick="fn_edit()"/>
+			<input type="button" value="삭제" onclick="fn_del1()"/>
+		</td>
+	</tr>
+</table>
+	
+
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+<script type="text/javascript">
+
+let v_tbody = document.getElementById("my_tbody");
+
+	function fn_list(){
+		
+        var param = {
+				'id':'1'
+            };
+
+        $.ajax({
+            type: 'POST',
+            url: 'ajax_list',
+            data: JSON.stringify(param),
+            dataType : 'JSON',
+            contentType: "application/json",
+            success: function(data){
+            	
+            	let name = "";
+            	for(var i=0; i<data.list.length; i++){
+            		name += `
+            			<tr>
+		            		<td><a href="javascript:fn_one('${data.list[i].s_id}')">${data.list[i].s_id}</a></td>
+		            		<td>${data.list[i].s_name}</td>
+		            		<td>${data.list[i].mobile}</td>
+		            		<td>${data.list[i].address}</td>
+		    			</tr>
+		    			`;
+            	}
+            	
+            	document.getElementById("my_tbody").innerHTML = name;
+            },
+            error: function(request, status, error){
+				console.log(error);
+            }
+        });
+		
+	}
+	
+	
+	function fn_one(s_id){
+        var param = {
+				's_id':s_id
+            };
+
+        $.ajax({
+            type: 'POST',
+            url: 'ajax_one',
+            data: JSON.stringify(param),
+            dataType : 'JSON',
+            contentType: "application/json",
+            success: function(data){
+
+				let v_sId   = document.getElementById("s_id");
+            	let v_sName = document.getElementById("s_name");
+            	let v_mobile   = document.getElementById("mobile");
+            	let v_address  = document.getElementById("address");
+            	
+            	v_sId.value   = data.list.s_id;
+            	v_sName.value = data.list.s_name;
+            	v_mobile.value   = data.list.mobile;
+            	v_address.value  = data.list.address;
+
+            },
+            error: function(request, status, error){
+				console.log(error);
+            }
+        });
+	}
+
+	
+	function fn_add(){
+        var param = {
+				's_id': document.getElementById("s_id").value,
+				's_name': document.getElementById("s_name").value,
+				'mobile': document.getElementById("mobile").value,
+				'address': document.getElementById("address").value
+            };
+        
+        $.ajax({
+            type: 'POST',
+            url: 'ajax_add',
+            data: JSON.stringify(param),
+            dataType : 'JSON',
+            contentType: "application/json",
+            success: function(data){
+            	let cnt = data.cnt
+            	console.log(cnt);
+            	
+            	if(cnt > 0){
+        			alert("추가 성공")
+        			fn_list()
+        			document.getElementById("s_id").value = "";
+        			document.getElementById("s_name").value = "";
+        			document.getElementById("mobile").value = "";
+        			document.getElementById("address").value = "";
+            	}else{
+            		alert("추가 실패")
+            	}
+            },
+            error: function(request, status, error){
+				console.log(error);
+            }
+        });
+	}
+	
+	
+	function fn_edit(){
+        var param = {
+				's_id': document.getElementById("s_id").value,
+				's_name': document.getElementById("s_name").value,
+				'mobile': document.getElementById("mobile").value,
+				'address': document.getElementById("address").value
+            };
+        
+        $.ajax({
+            type: 'POST',
+            url: 'ajax_edit',
+            data: JSON.stringify(param),
+            dataType : 'JSON',
+            contentType: "application/json",
+            success: function(data){
+            	let cnt = data.cnt
+            	console.log(cnt);
+            	if(cnt > 0){
+        			alert("수정 성공")
+        			fn_list()
+        			document.getElementById("s_id").value = "";
+        			document.getElementById("s_name").value = "";
+        			document.getElementById("mobile").value = "";
+        			document.getElementById("address").value = "";
+            	}else{
+            		alert("수정 실패")
+            	}
+            },
+            error: function(request, status, error){
+				console.log(error);
+            }
+        });
+	}
+	
+	
+	function fn_del1(){
+		let result = confirm("정말 삭제하시겠습니까?");
+		if (result==true){
+			fn_del2();
+		}else{
+			return;
+		}
+	}
+	
+	function fn_del2(){
+        var param = {
+				's_id': document.getElementById("s_id").value,
+            };
+        
+        $.ajax({
+            type: 'POST',
+            url: 'ajax_del',
+            data: JSON.stringify(param),
+            dataType : 'JSON',
+            contentType: "application/json",
+            success: function(data){
+            	let cnt = data.cnt
+            	console.log(cnt);
+            	if(cnt > 0){
+        			alert("삭제 성공")
+        			fn_list()
+        			document.getElementById("s_id").value = "";
+        			document.getElementById("s_name").value = "";
+        			document.getElementById("mobile").value = "";
+        			document.getElementById("address").value = "";
+            	}else{
+            		alert("삭제 실패")
+            	}
+            },
+            error: function(request, status, error){
+				console.log(error);
+            }
+        });
+	}
+</script>
+</head>
+<body onload="fn_list()">
+<table border="1px">
+	<thead>
+		<tr>
+			<td>ID</td>
+			<td>이름</td>
+			<td>전화번호</td>
+			<td>주소</td>
+		</tr>
+	</thead>
+	<tbody id="my_tbody"></tbody>
+</table>
+
+
+<table border="1px">
+	<tr>
+		<td>ID</td>
+		<td>
+			<input type="text" id="s_id"/>
+		</td>
+	</tr>
+	<tr>
+		<td>이름</td>
+		<td>
+			<input type="text" id="s_name"/>
+		</td>
+	</tr>
+	<tr>
+		<td>전화번호</td>
+		<td>
+			<input type="text" id="mobile"/>
+		</td>
+	</tr>
+	<tr>
+		<td>주소</td>
+		<td>
+			<input type="text" id="address"/>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2">
+			<input type="button" value="추가" onclick="fn_add()"/>
+			<input type="button" value="수정" onclick="fn_edit()"/>
+			<input type="button" value="삭제" onclick="fn_del1()"/>
+		</td>
+	</tr>
+</table>
+	
+
+</body>
+</html>
