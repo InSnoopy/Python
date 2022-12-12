@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>선생님 리스트 </title>
+<body>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script type="text/javascript">
+
+	function fn_list(){
+		axios.post('/ajax_teacher_list', {
+			t_id: '5',
+			t_name: '1',
+			
+		  })
+		  .then(function (res) {
+		    console.log(res.data.list);
+		    
+		    var list=res.data.list; 
+	    	var html ="";
+			for(var i=0; i<list.length; i++){
+				var t = list[i];
+			html+=`	
+	 		 <tr>
+	          	 <td><a href="javascript:fn_one('${t.t_id}')">${t.t_id}</td>
+	          	 <td>${t.t_name}</td>
+	          	 <td>${t.mobile}</td>
+	          	 <td>${t.addr}</td>
+	        </tr>
+	    `;
+			}	
+			var obj = document.querySelector("#my_tbody");
+	    	obj.innerHTML = html;
+		  });	
+	}
+
+	
+	function fn_one(t_id){
+		 
+		
+		axios.post('/ajax_teacher_one', {
+			t_id: t_id
+		  })
+		  .then(function (res) {
+		    
+		    var teacher = res.data.teacher;
+		    var obj_t_id = document.querySelector("#t_id");
+	        var obj_t_name = document.querySelector("#t_name");
+	        var obj_mobile = document.querySelector("#mobile");
+	        var obj_addr= document.querySelector("#addr");
+	        
+	        obj_t_id.value = teacher.t_id;
+	        obj_t_name.value = teacher.t_name;
+	        obj_mobile.value = teacher.mobile;
+	        obj_addr.value = teacher.addr;
+		  });	
+	}	
+	
+
+
+	function fn_add(){
+		var obj_t_id = document.querySelector("#t_id");
+		var obj_t_name = document.querySelector("#t_name");
+	    var obj_mobile = document.querySelector("#mobile");
+	    var obj_addr= document.querySelector("#addr");
+	        
+	    var param = {
+		         't_id':obj_t_id.value,
+		         't_name':obj_t_name.value,
+		         'mobile':obj_mobile.value,
+		         'addr':obj_addr.value
+	    };
+		axios.post('/ajax_teacher_add',param) 
+		  .then(function (res) {
+				var cnt = res.data.cnt;
+            	if(cnt==1){
+            		alert("정상적으로 추가됨 ");
+            		fn_list();
+            		obj_t_id.value="";
+            		obj_t_name.value="";
+            		obj_mobile.value="";
+            		obj_addr.value="";
+            		
+            		
+            	}else{
+            		alert("추가도중 에러발생 ");
+            	}
+		  });	
+	}
+	
+	function fn_eidt(){
+		var obj_t_id = document.querySelector("#t_id");
+		var obj_t_name = document.querySelector("#t_name");
+	    var obj_mobile = document.querySelector("#mobile");
+	    var obj_addr= document.querySelector("#addr");
+	        
+	    var param = {
+		         't_id':obj_t_id.value,
+		         't_name':obj_t_name.value,
+		         'mobile':obj_mobile.value,
+		         'addr':obj_addr.value
+	    };
+		axios.post('/ajax_teacher_edit',param) 
+		  .then(function (res) {
+				var cnt = res.data.cnt;
+            	if(cnt==1){
+            		alert("정상적으로 수정됨 ");
+            		fn_list();
+            		obj_t_id.value="";
+            		obj_t_name.value="";
+            		obj_mobile.value="";
+            		obj_addr.value="";
+            		
+            		
+            	}else{
+            		alert("추가도중 에러발생 ");
+            	}
+		  });	
+	}	
+	
+	
+	function fn_del(t_id){
+		
+		var flag = confirm("한번삭제한 데이터는 복구 불가 \n 진짜삭제?")
+		if(!flag){
+			return;
+		}
+		
+		
+		var obj_t_id = document.querySelector("#t_id");
+		var obj_t_name = document.querySelector("#t_name");
+	    var obj_mobile = document.querySelector("#mobile");
+	    var obj_addr= document.querySelector("#addr");
+		
+	        
+	    var param = {
+		         't_id':obj_t_id.value,
+	    };
+		axios.post('/ajax_teacher_del',param) 
+		  .then(function (res) {
+				var cnt = res.data.cnt;
+            	if(cnt>0){
+            		
+            		alert("정상적으로 삭제됨 ");
+            		fn_list();
+            		obj_t_id.value="";
+            		obj_t_name.value="";
+            		obj_mobile.value="";
+            		obj_addr.value="";
+            		
+            		
+            	}else{
+            		alert("추가도중 에러발생 ");
+            	}
+		  });	
+	}	
+	
+	
+	
+	
+	
+	
+	
+
+
+</script>
+
+</head>
+
+<body onload="fn_list()">
+<table border="1px">
+   <thead>
+      <tr>
+         <td>사번</td>
+         <td>이름</td>
+         <td>번호</td>
+         <td>주소</td>
+      </tr>
+   </thead>
+   <tbody id="my_tbody">
+      <tr>
+         <td colspan="4">검색된 데이터가 없습니다.</td>
+      </tr>
+   </tbody>
+</table>
+
+<table border="1px">
+
+	<tr>
+		<td>사번</td>
+		<td>
+			<input type="text" id="t_id">
+		</td>
+	</tr>
+	
+	<tr>
+		<td>이름</td>
+		<td>
+			<input type="text" id="t_name">
+		</td>
+	</tr>
+	
+	<tr>
+		<td>번호</td>
+		<td>
+			<input type="text" id="mobile">
+		</td>
+	</tr>
+	
+	<tr>
+		<td>주소</td>
+		<td>
+			<input type="text" id="addr">
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2">
+			<input type="button" value="추가" onclick="fn_add()">
+			<input type="button" value="수정" onclick="fn_eidt()">
+			<input type="button" value="삭제" onclick="fn_del()">
+		</td>
+	</tr>
+
+</table>    
+
+
+
+
+
+
+
+   
+</body>
+</html>

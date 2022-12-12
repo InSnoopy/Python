@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+<script type="text/javascript">
+
+
+   function fn_list(){
+      
+        var postdata = {
+            'id':'1'
+            };
+        
+        $.ajax({
+            type: 'POST',
+            url: 'ajax',
+            data: JSON.stringify(postdata),
+            dataType : 'JSON',
+            contentType: "application/json",
+            success: function(data){
+               console.log(data);
+          
+           		var list=data.list; 
+            	var html ="";
+				for(var i=0; i<list.length; i++){
+					var e = list[i];
+				html+=`	
+         		 <tr>
+	              	 <td><a href="javascript:fn_one('${e.e_id}')">${e.e_id}</td>
+	              	 <td>${e.e_name}</td>
+	              	 <td>${e.gender}</td>
+	              	 <td>${e.addr}</td>
+	            </tr>
+            `;
+				}	
+      
+            	var obj = document.querySelector("#my_tbody");
+            	obj.innerHTML = html;
+
+            },
+            error: function(request, status, error){
+            console.log(error);
+            }
+        });
+      
+   }
+    
+   
+    function fn_one(e_id){
+	   
+	   var param = {
+	            'e_id':e_id
+	            };
+	        
+	        $.ajax({
+	            type: 'POST',
+	            url: 'ajax_one',
+	            data: JSON.stringify(param),
+	            dataType : 'JSON',
+	            contentType: "application/json",
+	            success: function(data){
+	            	
+	            var emp = data.emp;
+	            console.log(emp.e_id);
+	            
+	            var obj_e_id = document.querySelector("#e_id");
+	            var obj_e_name = document.querySelector("#e_name");
+	            var obj_gender = document.querySelector("#gender");
+	            var obj_addr= document.querySelector("#addr");
+	            
+	            obj_e_id.value = emp.e_id;
+	            obj_e_name.value = emp.e_name;
+	            obj_gender.value = emp.gender;
+	            obj_addr.value = emp.addr;
+	            	
+	             	
+	          	/*  $(#e_id).val(data.emp.e_id)
+	          	 $(#e_name).val(data.emp.e_name)
+	          	 $(#gender).val(data.emp.gender)
+	           	 $(#addr).val(data.emp.addr)
+				}		 */
+	             
+	            }
+	        });
+   } 
+   
+    function fn_add(){
+    	var obj_e_id = document.querySelector("#e_id");
+        var obj_e_name = document.querySelector("#e_name");
+        var obj_gender = document.querySelector("#gender");
+        var obj_addr= document.querySelector("#addr");
+    	
+	   var param = {
+	            'e_id':obj_e_id.value,
+	            'e_name':obj_e_name.value,
+	            'gender':obj_gender.value,
+	            'addr':obj_addr.value
+	   
+	   };
+	        $.ajax({
+	            type: 'POST',
+	            url: 'ajax_add',
+	            data: JSON.stringify(param),
+	            dataType : 'JSON',
+	            contentType: "application/json",
+	            success: function(data){
+	            	var cnt = data.cnt;
+	            	if(cnt==1){
+	            		alert("정상적으로 추가됨 ");
+	            		fn_list();
+	            	}else{
+	            		alert("추가도중 에러발생 ");
+	            	}
+	            }
+	            	
+	        });
+   }
+    
+    
+    function fn_eidt(){
+    	var obj_e_id = document.querySelector("#e_id");
+        var obj_e_name = document.querySelector("#e_name");
+        var obj_gender = document.querySelector("#gender");
+        var obj_addr= document.querySelector("#addr");
+    	
+	   var param = {
+	            'e_id':obj_e_id.value,
+	            'e_name':obj_e_name.value,
+	            'gender':obj_gender.value,
+	            'addr':obj_addr.value
+	   
+	   };
+	        $.ajax({
+	            type: 'POST',
+	            url: 'ajax_eidt',
+	            data: JSON.stringify(param),
+	            dataType : 'JSON',
+	            contentType: "application/json",
+	            success: function(data){
+	            	var cnt = data.cnt;
+	            	if(cnt>0){
+	            		alert("정상적으로 수정됨 ");
+	            		fn_list();
+	            	}else{
+	            		alert("추가도중 에러발생 ");
+	            	}
+	            }
+	            	
+	        });
+   }
+    
+    
+    function fn_del(e_id){
+    	var obj_e_id = document.querySelector("#e_id");
+ 	   
+ 	   var param = {
+ 	            'e_id':obj_e_id.value
+ 	            };
+ 	        
+ 	        $.ajax({
+ 	            type: 'POST',
+ 	            url: 'ajax_del',
+ 	            data: JSON.stringify(param),
+ 	            dataType : 'JSON',
+ 	            contentType: "application/json",
+ 	            success: function(data){
+	 	           	var cnt = data.cnt;
+	 	           	console.log(cnt)
+	 	           	
+	            	if(cnt>0){
+	            		alert("정상적으로 삭제됨 ");
+	            		fn_list();
+	            		obj_e_id.value="";
+	            		obj_e_name="";
+	            		obj_gender= "";
+	            		obj_addr="";
+	            		           
+	            		
+	            	}else{
+	            		alert("추가도중 에러발생 ");
+	            	}
+            }
+ 	            	
+ 	             
+ 	        });
+    } 
+    
+    
+	               
+</script>
+</head>
+<body onload="fn_list()">
+<table border="1px">
+   <thead>
+      <tr>
+         <td>사번</td>
+         <td>이름</td>
+         <td>성별</td>
+         <td>주소</td>
+      </tr>
+   </thead>
+   <tbody id="my_tbody">
+      <tr>
+         <td colspan="4">검색된 데이터가 없습니다.</td>
+      </tr>
+   </tbody>
+</table>
+
+<table border="1px">
+
+	<tr>
+		<td>사번</td>
+		<td>
+			<input type="text" id="e_id">
+		</td>
+	</tr>
+	
+	<tr>
+		<td>이름</td>
+		<td>
+			<input type="text" id="e_name">
+		</td>
+	</tr>
+	
+	<tr>
+		<td>번호</td>
+		<td>
+			<input type="text" id="gender">
+		</td>
+	</tr>
+	
+	<tr>
+		<td>주소</td>
+		<td>
+			<input type="text" id="addr">
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2">
+			<input type="button" value="추가" onclick="fn_add()">
+			<input type="button" value="수정" onclick="fn_eidt()">
+			<input type="button" value="삭제" onclick="fn_del()">
+		</td>
+	</tr>
+
+</table>    
+   
+
+</body>
+</html>
