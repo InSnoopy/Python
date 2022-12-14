@@ -7,6 +7,12 @@
 		<link type="text/css" rel="stylesheet" href="main.css">
 	</head>
 	<body>
+	
+		<div style="position:absolute">
+			<span>남은총알:</span><span id="span_cnt_tang">10</span><br>
+			<span>탄창:</span><span id="span_cnt_retang">5</span><br>
+			<span>남은세균:</span><span id="span_cnt_monster">4</span>
+		<div>
 
 		<!-- Import maps polyfill -->
 		<!-- Remove this when import maps will be widely supported -->
@@ -27,8 +33,12 @@
 
 			let camera, scene, renderer;
 			let player;
-			let monsters = [];
-			let tangs = [];
+			
+			// 몬스터
+			var monsters = [];
+			// 총알
+			var tangs = [];
+
 			var xzs = [
 				{'x':-500,   'z':-500   ,   'color':0xff0000},
 				{'x':500,	 'z':-500   ,   'color':0xff8000},
@@ -39,7 +49,7 @@
 
 			function init() {
 
-				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
+				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 10000 );
 				camera.position.z = 0;
 				camera.position.y = 1000;
 
@@ -54,8 +64,6 @@
 
 				player = new THREE.Mesh( geometry, material );
 				scene.add( player );
-				player.position.z = 0;
-				player.position.x = 0;
 							
 				camera.lookAt(player.position);
 				
@@ -96,9 +104,18 @@
 			}
 
 			var p_speed = 0;
+			var T_SPEED = 3;
+			var flag_ing = true;
+			
+			var obj_cnt_monster = document.getElementById('span_cnt_monster');
+			var monsterLength = parseInt(obj_cnt_monster.innerHTML);
+			
 			function animate() {
+			
+				if(!flag_ing){ return; }
+				// animate()함수 계속 실행
 				requestAnimationFrame( animate );
-
+			
 				var rad = player.rotation.y;
 				var s = parseInt(Math.sin(rad)*p_speed);
 				var c = parseInt(Math.cos(rad)*p_speed);
@@ -106,16 +123,86 @@
 				player.position.z += -c;
 				player.position.x += -s;
 
+				for(var i=0; i<tangs.length; i++){
+					var rad = tangs[i].rotation.y;
+					var s = parseInt(Math.sin(rad)*T_SPEED);
+					var c = parseInt(Math.cos(rad)*T_SPEED);
+					
+					tangs[i].position.z += -c;
+					tangs[i].position.x += -s;
+				}
+				
+				// 몬스터가 player를 향해 감
+				for(var i=0; i<monsters.length; i++){
+
+					var f_speed = 1;
+				    var b = monsters[i]; //얘(bad)를 움직여 줄거야 
+				    var bx = b.position.x;
+				    var bz = b.position.z;
+				    var px = player.position.x;
+				    var pz = player.position.z;
+				    var r = Math.sqrt(((bx-px)*(bx-px))+((bz-pz)*(bz-pz)));
+				    var dx = ((px-bx)/r)*f_speed;
+				    var dz = ((pz-bz)/r)*f_speed;
+				    b.position.x += dx;
+				    b.position.z += dz;
+               
+				}
+				
+				// 플레이어와 몬스터 충돌
+				for(var i=0; i<monsters.length; i++){
+					var mx = monsters[i].position.x;
+					var mz = monsters[i].position.z;
+					var px = player.position.x;
+					var pz = player.position.z;
+					var r = Math.sqrt(((mx-px)*(mx-px))+((mz-pz)*(mz-pz)))
+					
+					if(r<100){
+						setTimeout('alert("캐릭터 사망")',1);
+						flag_ing = false;
+						p_speed = 0;
+						return;
+					}
+				}
+				
+				camera.lookAt(player.position);
 				renderer.render( scene, camera );
-				
-				tangs[0].position.x += 10;
-				// tangs[0].rotation.y += 0.2;
-				
+	
+				// 총알이랑 몬스터 충돌
+				for(var i=0; i<monsters.length; i++){
+					for(var j=0; j<tangs.length; j++){	
+						var mx = monsters[i].position.x;
+						var mz = monsters[i].position.z;
+						
+						var tx = tangs[j].position.x;
+						var tz = tangs[j].position.z;
+						var r = Math.sqrt(((mx-tx)*(mx-tx))+((mz-tz)*(mz-tz)))
+						
+						if(r<100){
+							scene.remove(monsters[i]);
+							monsters.splice(i,1);
+							scene.remove(tangs[j]);
+							tangs.splice(j,1);
+							
+							var obj_cnt_monster = document.querySelector("#span_cnt_monster");
+							var cnt_monster =  parseInt(obj_cnt_monster.innerHTML);
+
+							cnt_monster--;
+							obj_cnt_monster.innerHTML = cnt_monster;
+							
+							if(cnt_bad<=0){
+								setTimeout("alert('you win')",1)
+								return;
+							}
+							return;
+						}
+					}
+				}		
+
 			}
 			
 			document.addEventListener("keydown", onDocumentKeyDown, false);
 			function onDocumentKeyDown(event) {
-
 				
 				var key = event.key;
 				if (key == 'ArrowUp') {
@@ -123,20 +210,13 @@
 				} else if (key == 'ArrowDown') {
 					p_speed -= 0.5;
 				} else if (key == 'ArrowLeft') {
-					player.rotation.y += 0.02;
+					player.rotation.y += 0.04;
 				} else if (key == 'ArrowRight') {
-					player.rotation.y -= 0.02;
-				} else if (key == 'a'){
-				
-					// 총알
-					const texture = new THREE.TextureLoader().load( 'tangtang/총알.png' );
-					var geometry = new THREE.BoxGeometry( 100, 5, 100 );
-					const material = new THREE.MeshBasicMaterial( { map: texture } );
-					var tang = new THREE.Mesh( geometry, material );
-					tangs.push(tang);
-					scene.add( tang );
-
-					console.log(tangs);
+					player.rotation.y -= 0.04;
+				} else if (key == ' '){
+					shooting();
+				} else if (key == 'r') {
+					reload();
 				}
 				
 				if(p_speed<0){
@@ -145,7 +225,43 @@
 
 			};
 			
+			var tt = 10;
+			var rt = 5;
+			// 남은총알
+			var obj_cnt_tang = document.getElementById('span_cnt_tang');
+			var tangLength = parseInt(obj_cnt_tang.innerHTML);
+			// 탄창
+			var obj_cnt_retang = document.getElementById('span_cnt_retang');
+			var retangLength = parseInt(obj_cnt_retang.innerHTML);
 			
+			function shooting(){
+				// 남은총알
+				if(tangLength<=0){ return };
+				tangLength--;
+				obj_cnt_tang.innerHTML = tangLength;
+				
+				// var geometry = new THREE.SphereGeometry( 20, 20, 10 );
+				var geometry = new THREE.BoxGeometry( 20, 10, 100 );
+				var material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+				var tang = new THREE.Mesh( geometry, material );
+				
+				tang.rotation.y = player.rotation.y;
+				tang.position.x = player.position.x;
+				tang.position.y = player.position.y;
+				tang.position.z = player.position.z;
+
+				tangs.push(tang);
+				scene.add( tang );
+			}
+			
+			function reload(){
+				// 탄창
+				if(retangLength <= 0){ return };
+				retangLength--;
+				obj_cnt_retang.innerHTML = retangLength;
+				tt=10;
+				obj_cnt_tang.innerHTML = tt;
+			}
 			
 			init();
 			animate();
