@@ -1,20 +1,40 @@
-from flask import Flask
-from flask.globals import request
-import psycopg2
-from flask.templating import render_template
-from flask.json import jsonify
-import time
+from flask import Flask, jsonify, render_template
+from subprocess import call
+from flask_socketio import SocketIO, send
+
 app = Flask(__name__)
+app.secret_key = "mysecret"
+
+socket_io = SocketIO(app)
 
 @app.route('/')
-@app.route('/thre')
-def teacher():
-    return render_template("three2.html")
+def hello_world():
+    return "Hello Gaemigo Project Home Page!!"
+
+@app.route('/chat')
+def chatting():
+    return render_template('chat.html')
+
+
+@socket_io.on("message")
+def request(message):
+    print("message : "+ message)
+    to_client = dict()
+    if message == 'new_connect':
+        to_client['message'] = "새로운 유저가 난입하였다!!"
+        to_client['type'] = 'connect'
+    else:
+        to_client['message'] = message
+        to_client['type'] = 'normal'
+    # emit("response", {'data': message['data'], 'username': session['username']}, broadcast=True)
+    send(to_client, broadcast=True)
+    # 에코서버 : 
+    # 브로스크 서버 : 
+
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
-
-
-
-
+    socket_io.run(app, debug=True, port=9999)
+    
+    
+    

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Chat Room</title>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>
+<script type="text/javascript">
+
+	
+	var sock
+	function fn_init(){
+		// sock = io.connect('http://127.0.0.1:9999'); 
+        sock = io.connect('http://192.168.35.37:9999');
+        sock.on('connect', function(){ // 연결되는 순간 여기가 동작
+            console.log("i connect");
+        });
+        sock.on('message', function(msg){ // 여기로 메세지옴
+            var info = msg.message
+            var infos = info.split(":");
+        	if(infos[0]=="ready"){
+	        	rv_ready(infos[1]);
+        	}
+        	if(infos[0]=="isdone"){
+	        	rv_isdone(infos[1]);
+        	}
+        	if(infos[0]=="done"){
+	        	rv_done(infos[1]);
+        	}
+
+        });
+	}
+	
+	
+	function rv_done(user_name){
+		var idx = checkUser(user_name);
+		var st_names = document.getElementsByClassName("st_name");
+		st_names[idx].style.backgroundColor = "blue";
+	}
+	
+	
+	function rv_isdone(users_name){
+		var arr_users = users_name.split(",");
+		// 주소지 오류가 생길 경우가 있다. 이런 초기화는 추천하지 않는다.
+		// users = []
+		users.splice(0,users.length);
+		for(var i=0; i<arr_users.length;i++){
+			users.push(arr_users[i]);
+		}
+		
+		var st_names = document.getElementsByClassName("st_name");
+		for(var i=0; i<st_names.length; i++){
+			st_names[i].innerText = "__";		
+			st_names[i].style.backgroundColor = "white";
+		}
+		
+		for(var i=0; i<users.length; i++){
+			st_names[i].innerText = users[i];		
+			st_names[i].style.backgroundColor = "red";
+		}		
+	}
+	
+	
+	// 유저 닉네임이 있는지 없는지 체크하는 함수
+	var users = [];
+	function checkUser(user_name){
+		for(var i=0; i<users.length;i++){
+			if(users[i]==user_name){
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	function rv_ready(user_name){
+		var idx = checkUser(user_name);
+		if(idx == -1){
+			users.push(user_name);
+		}
+		var st_names = document.getElementsByClassName("st_name");
+		for(var i=0; i<users.length; i++){
+			st_names[i].innerText = users[i];			
+		}
+	}
+	
+	
+	function fn_done(){
+		let obj_it_name = document.getElementById("it_name");
+		sock.send("done:"+obj_it_name.value);
+	}
+	
+	function fn_isdone(){
+		// users 배열에 String이 들어오면 ,,간격 안에 자동으로 형변환해서 넣어준다.
+		sock.send("isdone:"+users);
+	}
+	
+	function fn_ready(){
+		let obj_it_name = document.getElementById("it_name");
+		var myname = obj_it_name.value;
+		const regex = /^[가-힣]+$/;
+		console.log(myname.length);
+		if(!regex.test(myname)){
+			return;
+		}
+		if(myname.length != 3){
+			return;
+		}
+		sock.send("ready:"+obj_it_name.value);
+	}
+		
+</script>
+</head>
+<body onload="fn_init()">
+<!-- <a href="javascript:myclick()">click</a> -->
+	
+	<input type="text" id="it_name" style="width:60px"/>
+	<input type="button" value="READY" onclick="fn_ready()"/>
+	<input type="button" value="다됐슈" onclick="fn_done()"/>
+	
+	<table border = "1" style="width:200px">
+	   <tr>
+	      <td class="st_name">__</td>
+	      <td class="st_name">__</td>
+	      <td class="st_name">__</td>
+	      <td class="st_name">__</td>
+	      <td class="st_name">__</td>	      
+	   </tr>
+	   <tr>
+	      <td class="st_name">__</td>
+	      <td class="st_name">__</td>
+	      <td class="st_name">__</td>
+	      <td class="st_name">__</td>
+	      <td class="st_name">__</td>	      
+	   </tr>
+	   <tr>
+	      <td class="st_name">__</td>
+	      <td class="st_name">__</td>
+	      <td class="st_name">__</td>
+	      <td class="st_name">__</td>
+	      <td class="st_name">__</td>	      
+	   </tr>
+	   <tr>
+	      <td class="st_name">__</td>
+	      <td class="st_name">__</td>
+	      <td class="st_name">__</td>
+	      <td class="st_name">__</td>
+	      <td class="st_name">__</td>	      
+	   </tr>
+	   <tr>
+	      <td class="st_name">__</td>
+	      <td class="st_name">__</td>
+	      <td class="st_name">__</td>
+	      <td class="st_name">__</td>
+	      <td class="st_name">__</td>	      
+	   </tr>   
+	</table>
+	
+	<input type="button" value="다됐냐" onclick="fn_isdone()"/>
+	
+</body>
+</html>

@@ -165,7 +165,24 @@
 					}
 				}
 				
-				camera.lookAt(player.position);
+				
+				var str_character_pos = "";
+				for(var i=0; i<monsters.length; i++){
+					var b = monsters[i];
+					var bx = parseInt(b.position.x);
+					var bz = parseInt(b.position.z);
+					str_character_pos += "b."+bx+"."+bz+",";
+				}
+				var ppx = parseInt(player.position.x);
+				var ppz = parseInt(player.position.z);
+				str_character_pos += "p."+ppx+"."+ppz+"";
+				
+				console.log(str_character_pos);
+				
+				
+				
+
+				// camera.lookAt(player.position); // 카메라위치 따라가기
 				renderer.render( scene, camera );
 	
 				// 총알이랑 몬스터 충돌

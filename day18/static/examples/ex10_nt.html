@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - geometry - cube</title>
+		<meta charset="utf-8">
+		
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="main.css">
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>
+
+		<style>
+			body{
+				color:gray;
+			}
+			.can_user{
+				width: 100px; height: 100px;
+			}
+		</style>
+	</head>
+	<body>
+		
+		<div style="position:absolute;left:0px;top:0px;">
+			<table border=2px;>
+				<tr>
+					<td><div class="st_name">__</div></td>
+					<td><div class="st_name">__</div></td>
+					<td><div class="st_name">__</div></td>
+					<td><div class="st_name">__</div></td>
+					<td><div class="st_name">__</div></td>
+					
+					<td><div class="st_name">__</div></td>
+					<td><div class="st_name">__</div></td>
+					<td><div class="st_name">__</div></td>
+					<td><div class="st_name">__</div></td>
+				</tr>
+				<tr>
+					<td><canvas class="can_user"></canvas></td>
+					<td><canvas class="can_user"></canvas></td>
+					<td><canvas class="can_user"></canvas></td>
+					<td><canvas class="can_user"></canvas></td>
+					<td><canvas class="can_user"></canvas></td>
+					
+					<td><canvas class="can_user"></canvas></td>
+					<td><canvas class="can_user"></canvas></td>
+					<td><canvas class="can_user"></canvas></td>
+					<td><canvas class="can_user"></canvas></td>
+				</tr>
+				
+				<tr>
+					<td><div class="st_name">__</div></td>
+					<td colspan="7" class="can_user"></td>
+					<td><div class="st_name">__</div></td>
+				</tr>
+				<tr>
+					<td><div class="st_name">__</div></td>
+					<td colspan="7" class="can_user"></td>
+					<td><div class="st_name">__</div></td>
+				</tr>
+				
+				<tr>
+					<td><div class="st_name">__</div></td>
+					<td colspan="7" class="can_user"></td>
+					<td><div class="st_name">__</div></td>
+				</tr>
+				<tr>
+					<td><div class="st_name">__</div></td>
+					<td colspan="7" class="can_user"></td>
+					<td><div class="st_name">__</div></td>
+				</tr>
+				<tr>
+					<td><div class="st_name">__</div></td>
+					<td><div class="st_name">__</div></td>
+					<td><div class="st_name">__</div></td>
+					<td><div class="st_name">__</div></td>
+					<td><div class="st_name">__</div></td>
+					
+					<td><div class="st_name">__</div></td>
+					<td><div class="st_name">__</div></td>
+					<td><div class="st_name">__</div></td>
+					<td><div class="st_name">__</div></td>
+				</tr>
+				<tr>
+					<td><canvas class="can_user"></canvas></td>
+					<td><canvas class="can_user"></canvas></td>
+					<td><canvas class="can_user"></canvas></td>
+					<td><canvas class="can_user"></canvas></td>
+					<td><canvas class="can_user"></canvas></td>
+					
+					<td><canvas class="can_user"></canvas></td>
+					<td><canvas class="can_user"></canvas></td>
+					<td><canvas class="can_user"></canvas></td>
+					<td><canvas class="can_user"></canvas></td>
+				</tr>
+
+			</table>
+			
+			<span>남은총알:</span><span id="span_cnt_tang">10</span><br>
+			<span>탄창:</span><span id="span_cnt_retang">5</span><br>
+			<span>남은세균:</span><span id="span_cnt_monster">4</span><br>
+			
+			<input type="text" id="it_name" style="width:60px;"/>
+			<input type="button" value="READY" onclick="fn_ready()"/>
+			<input type="button" value="START" onclick="fn_start()"/>
+				
+		</div>
+		
+		<!-- Import maps polyfill -->
+		<!-- Remove this when import maps will be widely supported -->
+		<script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+		<script>
+			var flag_ing = false;
+		</script>
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "../build/three.module.js",
+					"three/addons/": "./jsm/"
+				}
+			}
+		</script>
+
+		<script type="module">
+
+			import * as THREE from 'three';
+
+			let camera, scene, renderer;
+			let player;
+			
+			// 몬스터
+			var monsters = [];
+			// 총알
+			var tangs = [];
+
+			var xzs = [
+				{'x':-500,   'z':-500   ,   'color':0xff0000},
+				{'x':500,	 'z':-500   ,   'color':0xff8000},
+				{'x':500   ,   'z':500   ,   'color':0xffff00},
+				{'x':-500   ,'z':500,      'color':0x04B404},
+			];
+
+
+			function init() {
+
+				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 10000 );
+				camera.position.z = 0;
+				camera.position.y = 2000;
+
+				console.log(camera.position);
+
+				scene = new THREE.Scene();
+
+				// 유저
+				const texture = new THREE.TextureLoader().load( 'tangtang/비행기.png' );
+				var geometry = new THREE.BoxGeometry( 100, 10, 100 );
+				const material = new THREE.MeshBasicMaterial( { map: texture } );
+
+				player = new THREE.Mesh( geometry, material );
+				scene.add( player );
+							
+				camera.lookAt(player.position);
+				
+
+				// 몬스터
+				for(var i=0; i<4; i++){
+					const texture = new THREE.TextureLoader().load( 'tangtang/몬스터.png' );
+					var geometry = new THREE.BoxGeometry( 100, 10, 100 );
+					const material = new THREE.MeshBasicMaterial( { map: texture } );
+					var monster = new THREE.Mesh( geometry, material );
+					monsters.push(monster);
+					scene.add( monster );
+				}
+				for(var i=0; i<xzs.length; i++){
+				   monsters[i].position.x = xzs[i].x;
+				   monsters[i].position.z = xzs[i].z;
+				}
+
+				// 랜더링
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				document.body.appendChild( renderer.domElement );
+
+				//
+
+				window.addEventListener( 'resize', onWindowResize );
+
+			}
+
+			function onWindowResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			var p_speed = 0; //플레이어 속도
+			var T_SPEED = 10; //총알속도
+			// 게임 시작 전
+			
+			var obj_cnt_monster = document.getElementById('span_cnt_monster');
+			var monsterLength = parseInt(obj_cnt_monster.innerHTML);
+			
+			function animate() {
+			
+				requestAnimationFrame( animate );
+				if(!flag_ing){ return; }
+				// animate()함수 계속 실행
+
+			
+				// 플레이어
+				var rad = player.rotation.y;
+				var s = parseInt(Math.sin(rad)*p_speed); //Math.sin(rad) : 내가 보는 방향  / P_speed : 속도 
+				var c = parseInt(Math.cos(rad)*p_speed);
+				
+				player.position.z += -c;
+				player.position.x += -s;
+
+				// 총알
+				for(var i=0; i<tangs.length; i++){
+					var rad = tangs[i].rotation.y;
+					var s = parseInt(Math.sin(rad)*T_SPEED);
+					var c = parseInt(Math.cos(rad)*T_SPEED);
+					
+					tangs[i].position.z += -c;
+					tangs[i].position.x += -s;
+				}
+				
+				// 몬스터가 player를 향해 감
+				for(var i=0; i<monsters.length; i++){
+
+					var f_speed = 1; //적이 따라오는 속도
+				    var b = monsters[i]; //얘(bad)를 움직여 줄거야 
+				    var bx = b.position.x;
+				    var bz = b.position.z;
+				    var px = player.position.x;
+				    var pz = player.position.z;
+				    var r = Math.sqrt(((bx-px)*(bx-px))+((bz-pz)*(bz-pz))); //제곱근sqrt  => 루트(3의 제곱 + 4의 제곱) = 5
+				    var dx = ((px-bx)/r)*f_speed;
+				    var dz = ((pz-bz)/r)*f_speed;
+				    b.position.x += dx; //바이러스 위치(b.position)만큼 가서 distance x
+				    b.position.z += dz;
+               
+				}
+				
+				// 플레이어와 몬스터 충돌 부딪히면 플레이어 게임오버  (거리측정)
+				for(var i=0; i<monsters.length; i++){
+					var mx = monsters[i].position.x;
+					var mz = monsters[i].position.z;
+					var px = player.position.x;
+					var pz = player.position.z;
+					var r = Math.sqrt(((mx-px)*(mx-px))+((mz-pz)*(mz-pz))) //제곱근sqrt  => 루트(3의 제곱 + 4의 제곱) = 5
+					
+					if(r<100){
+						setTimeout('alert("캐릭터 사망")',1);
+						//alert("게임오버"); alert 오류 => alert가 먼저 포커싱을 가져오는 문제가 있기때문에 settimeout을 이용해서 조금 alert를 딜레이 시켜둔 후 위에 소스를 출력먼저 하도록 만든다.
+						flag_ing = false;
+						p_speed = 0;
+						return;
+					}
+				}
+				
+				
+				var str_character_pos = "";
+				for(var i=0; i<monsters.length; i++){
+					var b = monsters[i];
+					var bx = parseInt(b.position.x);
+					var bz = parseInt(b.position.z);
+					str_character_pos += "b."+bx+"."+bz+",";
+				}
+				var ppx = parseInt(player.position.x);
+				var ppz = parseInt(player.position.z);
+				str_character_pos += "p."+ppx+"."+ppz+"";
+				
+				console.log(str_character_pos);
+
+				
+
+				// camera.lookAt(player.position); // 카메라위치 따라가기
+				renderer.render( scene, camera );
+	
+				// 총알이랑 몬스터 충돌
+				for(var i=0; i<monsters.length; i++){
+					for(var j=0; j<tangs.length; j++){	
+						var mx = monsters[i].position.x;
+						var mz = monsters[i].position.z;
+						
+						var tx = tangs[j].position.x;
+						var tz = tangs[j].position.z;
+						var r = Math.sqrt(((mx-tx)*(mx-tx))+((mz-tz)*(mz-tz)))
+						
+						if(r<100){
+							scene.remove(monsters[i]);
+							monsters.splice(i,1);
+							scene.remove(tangs[j]);
+							tangs.splice(j,1);
+							
+							var obj_cnt_monster = document.querySelector("#span_cnt_monster");
+							var cnt_monster =  parseInt(obj_cnt_monster.innerHTML);
+
+							cnt_monster--;
+							obj_cnt_monster.innerHTML = cnt_monster;
+							
+							if(cnt_bad<=0){
+								setTimeout("alert('you win')",1)
+								return;
+							}
+							return;
+						}
+					}
+				}		
+
+			}
+			
+			document.addEventListener("keydown", onDocumentKeyDown, false);
+			function onDocumentKeyDown(event) {
+				
+				var key = event.key;
+				if (key == 'ArrowUp') {
+					p_speed += 0.1;
+				} else if (key == 'ArrowDown') {
+					p_speed -= 0.5;
+				} else if (key == 'ArrowLeft') {
+					player.rotation.y += 0.04;
+				} else if (key == 'ArrowRight') {
+					player.rotation.y -= 0.04;
+				} else if (key == ' '){
+					shooting();
+				} else if (key == 'r') {
+					reload();
+				}
+				
+				if(p_speed<0){
+					p_speed = 0;
+				}
+
+			};
+			
+			var tt = 10;
+			var rt = 5;
+			// 남은총알
+			var obj_cnt_tang = document.getElementById('span_cnt_tang');
+			var tangLength = parseInt(obj_cnt_tang.innerHTML);
+			// 탄창
+			var obj_cnt_retang = document.getElementById('span_cnt_retang');
+			var retangLength = parseInt(obj_cnt_retang.innerHTML);
+			
+			function shooting(){
+				// 남은총알
+				if(tangLength<=0){ return };
+				tangLength--;
+				obj_cnt_tang.innerHTML = tangLength;
+				
+				// var geometry = new THREE.SphereGeometry( 20, 20, 10 );
+				var geometry = new THREE.BoxGeometry( 20, 10, 100 );
+				var material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+				var tang = new THREE.Mesh( geometry, material );
+				
+				tang.rotation.y = player.rotation.y;
+				tang.position.x = player.position.x;
+				tang.position.y = player.position.y;
+				tang.position.z = player.position.z;
+
+				tangs.push(tang);
+				scene.add( tang );
+			}
+			
+			function reload(){
+				// 탄창
+				if(retangLength <= 0){ return };
+				retangLength--;
+				obj_cnt_retang.innerHTML = retangLength;
+				tt=10;
+				obj_cnt_tang.innerHTML = tt;
+			}
+			
+			init();
+			animate();
+			
+			
+
+		</script>
+		
+		<script>
+			var sock
+			function fn_init(){
+				// sock = io.connect('http://127.0.0.1:9999'); 
+				sock = io.connect('http://192.168.35.37:9999');
+				sock.on('connect', function(){ // 연결되는 순간 여기가 동작
+					console.log("i connect");
+				});
+				sock.on('message', function(msg){ // 여기로 메세지옴
+					var info = msg.message
+					var infos = info.split(":");
+					if(infos[0]=="ready"){
+						rv_ready(infos[1]);
+					}
+					if(infos[0]=="isdone"){
+						rv_start(infos[1]);
+					}
+				});
+			}
+
+			
+			
+			function rv_start(users_name){
+				var arr_users = users_name.split(",");
+				// 주소지 오류가 생길 경우가 있다. 이런 초기화는 추천하지 않는다.
+				// users = []
+				users.splice(0,users.length);
+				for(var i=0; i<arr_users.length;i++){
+					users.push(arr_users[i]);
+				}
+				
+				var st_names = document.getElementsByClassName("st_name");
+				for(var i=0; i<st_names.length; i++){
+					st_names[i].innerText = "__";		
+				}
+				
+				for(var i=0; i<users.length; i++){
+					st_names[i].innerText = users[i];		
+				}		
+				
+				console.log("flag_ing",flag_ing);
+				
+				flag_ing = true;
+			}
+
+			// 유저 닉네임이 있는지 없는지 체크하는 함수
+			var users = [];
+			function checkUser(user_name){
+				for(var i=0; i<users.length;i++){
+					if(users[i]==user_name){
+						return i;
+					}
+				}
+				return -1;
+			}
+			
+			function fn_start(){
+				// users 배열에 String이 들어오면 ,,간격 안에 자동으로 형변환해서 넣어준다.
+				sock.send("isdone:"+users);
+			}
+			
+			function rv_ready(user_name){
+				var idx = checkUser(user_name);
+				if(idx == -1){
+					users.push(user_name);
+				}
+				var st_names = document.getElementsByClassName("st_name");
+				for(var i=0; i<users.length; i++){
+					st_names[i].innerText = users[i];			
+				}
+			}
+			
+			function fn_send(){
+				sock.send("hello");
+			}
+
+			function fn_ready(){
+				let obj_it_name = document.getElementById("it_name");
+				var myname = obj_it_name.value;
+				const regex = /^[가-힣]+$/;
+				console.log(myname.length);
+				if(!regex.test(myname)){
+					return;
+				}
+				if(myname.length != 3){
+					return;
+				}
+				sock.send("ready:"+obj_it_name.value);
+			}
+			
+			fn_init()
+		</script>
+		
+
+	<a href="javascript:fn_send()">send</a>
+		
+	</body>
+</html>

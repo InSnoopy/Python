@@ -7,7 +7,7 @@ import time
 app = Flask(__name__)
 
 @app.route('/')
-@app.route('/thre')
+@app.route('/three')
 def teacher():
     return render_template("three.html")
 
