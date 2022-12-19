@@ -24,6 +24,3 @@ if __name__ == '__main__':
     # host="0.0.0.0"는 모든 ip를 접속 허용한다는 뜻
     socket_io.run(app, debug=True, host="0.0.0.0", port=9999)
     
-    
-    
-

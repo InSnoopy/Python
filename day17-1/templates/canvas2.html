@@ -11,42 +11,47 @@
 <body>
 
 <!-- <canvas id="myCanvas" width="1000px" height="1000px"></canvas> -->
-<canvas id="myCanvas" width="200px" height="200px"></canvas>
+<canvas id="myCanvas" width="100px" height="100px"></canvas>
 
 <script>
 
 var str = "b.-499.-499,b.499.-499,b.499.499,b.-499.499,p.0.0";
-var arr_str = str.split(",");
 
-var canvas = document.getElementById("myCanvas");
-var ctx = canvas.getContext("2d");
-
-for(var i=0;i<arr_str.length;i++){
-	var bpxz = arr_str[i].split(".");
-	var bp = bpxz[0];
-	var bpx = parseInt(bpxz[1]);
-	var bpz = parseInt(bpxz[2]);
-	if(bp=="b"){
-		var cenx = (bpx+500)/5;
-		var ceny = (bpz+500)/5;
-		ctx.beginPath();
-		ctx.rect(cenx-10, ceny-10, 10*2, 10*2);
-		ctx.fillStyle = "#FF0000";
-		ctx.fill();
-		ctx.closePath();
-	}
+function drawCanvas(str){
+	var arr_str = str.split(",");
 	
-	if(bp=="p"){
-		var cenx = (bpx+500)/5;
-		var ceny = (bpz+500)/5;
-		ctx.beginPath();
-		ctx.arc(cenx, ceny, 10, 0, Math.PI*2, false);
-		ctx.fillStyle = "green";
-		ctx.fill();
-		ctx.closePath();
+	var canvas = document.getElementById("myCanvas");
+	var ctx = canvas.getContext("2d");
+	
+	for(var i=0;i<arr_str.length;i++){
+		var bpxz = arr_str[i].split(".");
+		var bp = bpxz[0];
+		var bpx = parseInt(bpxz[1]);
+		var bpz = parseInt(bpxz[2]);
+		if(bp=="b"){
+			var cenx = (bpx+500)/10;
+			var ceny = (bpz+500)/10;
+			ctx.beginPath();
+			ctx.rect(cenx-10, ceny-10, 10*2, 10*2);
+			ctx.fillStyle = "#FF0000";
+			ctx.fill();
+			ctx.closePath();
+		}
+		
+		if(bp=="p"){
+			var cenx = (bpx+500)/10;
+			var ceny = (bpz+500)/10;
+			ctx.beginPath();
+			ctx.arc(cenx, ceny, 10, 0, Math.PI*2, false);
+			ctx.fillStyle = "green";
+			ctx.fill();
+			ctx.closePath();
+		}
 	}
-
 }
+
+drawCanvas(str);
+
 
 
 
